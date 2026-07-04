@@ -1,6 +1,8 @@
-# macOS Type-to-Translate Technical Spikes
+![not-fluent-yet](.github/banner.svg)
 
-Proof-of-concept Swift project for validating three technical risks before building a full macOS menu bar "type-to-translate" app.
+# not-fluent-yet
+
+A macOS menu bar app that translates what you type or say, without leaving the app you're using — built as a series of technical spikes before becoming the real thing.
 
 It contains three separate minimal spike executables that were used to validate each risk in isolation, plus a minimal real app (`app/`, product name `translate-app`) that wires the three validated approaches together into one long-running menu bar app.
 
@@ -14,15 +16,14 @@ It contains three separate minimal spike executables that were used to validate 
 - macOS 15+ Sequoia.
 - Xcode 16+ recommended because the Apple `Translation` framework is a macOS 15 SDK API.
 - Swift 5.9+.
-- App Sandbox must be disabled for the real product direction that uses global events, Accessibility, paste-back, and nonstandard app focus behavior.
 - No third-party dependencies.
 
-The Swift Package command-line executables are unsandboxed by default. If you convert these spikes into app targets in Xcode, do **not** enable App Sandbox. This means this architecture is not suitable for Mac App Store distribution without redesigning the paste-back/global-event approach.
+`translate-app` needs no special entitlements and works fine sandboxed. `spike2-pasteback` is the one exception — it specifically validates a `CGEvent`/Accessibility auto-paste technique that requires App Sandbox to stay off, and that technique isn't used anywhere else in this project (see "Why not auto-paste" below).
 
 ## Build
 
 ```bash
-cd mac-translate-spikes
+cd not-fluent-yet
 swift build
 ```
 
@@ -244,16 +245,22 @@ Spike 2 proved that a `CGEvent`-simulated Cmd+V can paste into the previously-fr
 Menu bar menu:
 
 - Shows the current hotkey.
-- "Swap direction" toggles between the current source/target language pair (default `TH → EN`).
+- "Translate from" / "Translate to" submenus pick the source/target language.
+- "Swap direction" flips the current pair (default `TH → EN`).
 - Shows Microphone / Speech Recognition permission status, with shortcuts to open the relevant Settings pane.
 - "Launch at Login" toggle (via `SMAppService`).
 - Quit.
 
+### Supported languages
+
+🇺🇸 English · 🇹🇭 Thai · 🇪🇸 Spanish · 🇫🇷 French · 🇩🇪 German · 🇮🇹 Italian · 🇧🇷 Portuguese · 🇯🇵 Japanese · 🇰🇷 Korean · 🇨🇳 Chinese (Simplified) · 🇷🇺 Russian · 🇸🇦 Arabic · 🇮🇳 Hindi · 🇻🇳 Vietnamese · 🇮🇩 Indonesian · 🇳🇱 Dutch · 🇵🇱 Polish · 🇹🇷 Turkish · 🇺🇦 Ukrainian · 🇲🇾 Malay
+
+Any pair among these can be picked from the menu bar. The list lives in `LanguagePair.supportedLanguages`; speech-to-text locales are mapped 1:1 in `SpeechInputService.localeIdentifier`.
+
 Known limitations:
 
-- No language picker beyond swapping the current pair; other languages require editing `LanguagePair`'s default in `app/Sources/LanguagePair.swift`.
 - No persisted settings — language pair and hotkey reset to defaults on relaunch.
-- Speech input locale is derived from the two-letter source language code (see `SpeechInputService.localeIdentifier`); uncommon languages may need a mapping added.
+- No automatic selected-text capture — type, paste, or speak into the panel.
 
 ## Suggested validation order
 
@@ -271,6 +278,5 @@ The three spikes (`spike1-translation/`, `spike2-pasteback/`, `spike3-panel/`) a
 - Don't auto-capture selected text.
 - Don't replace global keyboard behavior.
 - Don't fall back to a third-party translation provider.
-- Aren't packaged for the Mac App Store.
 
-`translate-app` lifts most of these limits (it is the menu bar app), but still has no persisted settings, no language picker beyond swap, no selected-text auto-capture, and no Mac App Store packaging — see "Known limitations" above.
+`translate-app` lifts all of these except settings persistence and selected-text auto-capture — see "Known limitations" above.
