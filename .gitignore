@@ -1,0 +1,20 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Built app bundle (regenerate with scripts/build-app.sh)
+dist/
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Claude Code local settings (machine-specific permissions, not shared project config)
+.claude/
+
+# Unrelated scratch Xcode project accidentally created in this folder — not part of this app
+Mew/
