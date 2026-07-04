@@ -262,6 +262,24 @@ Known limitations:
 - No persisted settings — language pair and hotkey reset to defaults on relaunch.
 - No automatic selected-text capture — type, paste, or speak into the panel.
 
+## Mac App Store build — `AppStore/`
+
+`translate-app`'s logic lives in a library target, `TranslateCore` (see `Package.swift`), so it can be shared between the personal SwiftPM build above and a sandboxed Xcode app for App Store submission — same code, no forked logic. SwiftPM alone can't produce an App-Store-submittable archive, so this is a real `.xcodeproj`, generated from `AppStore/project.yml` via [XcodeGen](https://github.com/yonaskolb/XcodeGen) rather than hand-maintained (the generated project and entitlements file aren't committed — regenerate them any time).
+
+Setup:
+
+```bash
+brew install xcodegen   # one-time
+./AppStore/generate.sh
+open AppStore/TranslateStore.xcodeproj
+```
+
+Then in Xcode's Signing & Capabilities tab, select your Apple Developer Team before archiving.
+
+This target already has App Sandbox on with exactly the entitlements it needs — `com.apple.security.app-sandbox`, `com.apple.security.device.audio-input` (microphone), and `com.apple.security.network.client` (language pack downloads). No Accessibility entitlement exists because nothing here uses it: this build is only possible at all because the personal build already dropped `CGEvent` auto-paste for clipboard-copy (see "Why not auto-paste" above) — that change is what made a sandboxed build possible in the first place, not something layered on top of it.
+
+Still open before submitting: a real polished app icon (the current one is a placeholder generated from an SF Symbol), App Store Connect metadata, and a privacy policy URL (required once an app requests microphone/speech access).
+
 ## Suggested validation order
 
 1. Run Spike 3 first to confirm the panel can accept typing without focus theft.

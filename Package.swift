@@ -12,6 +12,9 @@ let package = Package(
         .executable(name: "spike2-pasteback", targets: ["Spike2Pasteback"]),
         .executable(name: "spike3-panel", targets: ["Spike3Panel"]),
         .executable(name: "translate-app", targets: ["TranslateApp"]),
+        // Exposed so the Mac App Store Xcode target (AppStore/) can depend on this package
+        // and reuse the exact same app logic via TranslateCoreApp.run().
+        .library(name: "TranslateCore", targets: ["TranslateCore"]),
     ],
     targets: [
         .executableTarget(
@@ -26,9 +29,14 @@ let package = Package(
             name: "Spike3Panel",
             path: "spike3-panel/Sources"
         ),
+        .target(
+            name: "TranslateCore",
+            path: "app/Sources/TranslateCore"
+        ),
         .executableTarget(
             name: "TranslateApp",
-            path: "app/Sources"
+            dependencies: ["TranslateCore"],
+            path: "app/Sources/TranslateApp"
         ),
     ]
 )

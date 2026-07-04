@@ -10,6 +10,11 @@ dist/
 *.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcuserstate
 
+# AppStore/ is an xcodegen project: project.yml is the source of truth, the .xcodeproj and
+# entitlements file are generated from it — regenerate with AppStore/generate.sh.
+AppStore/TranslateStore.xcodeproj/
+AppStore/TranslateStore.entitlements
+
 # macOS
 .DS_Store
 
