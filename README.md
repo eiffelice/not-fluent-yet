@@ -4,6 +4,7 @@
 
 **Translate what you type or say, anywhere on macOS, without switching apps.**
 
+![Release](https://img.shields.io/github/v/release/eiffelice/not-fluent-yet)
 ![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-blue)
 ![Swift](https://img.shields.io/badge/swift-5.9-orange)
 ![License](https://img.shields.io/badge/license-all%20rights%20reserved-lightgrey)
@@ -16,7 +17,15 @@ Press a global hotkey from any app, type or speak, and get a translation back �
 - 📋 **Clipboard-based** — no special permissions, no Accessibility prompts, works sandboxed
 - 🍎 **Native and on-device** — Apple's Translation and Speech frameworks, nothing sent to a third party
 
-## Quick start
+## Download
+
+**[Download the latest release](https://github.com/eiffelice/not-fluent-yet/releases/latest)** — unzip `Translate.zip`, then right-click `Translate.app` and choose **Open** (needed once, since this isn't notarized by Apple — a plain double-click will be refused the first time). Look for the icon in your menu bar afterward.
+
+Requires macOS 15 (Sequoia) or newer. No installer, no admin password, no account.
+
+### Build from source
+
+Prefer to build it yourself, or want to read the code first:
 
 ```bash
 git clone https://github.com/eiffelice/not-fluent-yet.git
@@ -25,7 +34,7 @@ cd not-fluent-yet
 open dist/Translate.app
 ```
 
-That's it — the app runs as a menu bar accessory (no Dock icon) until you Quit from its menu.
+Either way, it runs as a menu bar accessory (no Dock icon) until you Quit from its menu.
 
 ## Usage
 
