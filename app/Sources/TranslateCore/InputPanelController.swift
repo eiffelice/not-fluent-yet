@@ -121,7 +121,11 @@ final class InputPanelController: NSObject, NSTextViewDelegate {
         let thisRequestID = requestID
         Task {
             let authorized = await SpeechInputService.requestAuthorization()
-            guard thisRequestID == self.requestID else { return }
+            // requestID alone isn't enough here: tapping the mic again to stop moves `stage` to
+            // `.busy` without bumping `requestID` (that continuity is needed so the eventual final
+            // transcript still gets accepted). Without this stage check, a fast start-then-stop tap
+            // would let this late-arriving authorization still kick off the microphone.
+            guard thisRequestID == self.requestID, case .listening = self.stage else { return }
             guard authorized else {
                 print("FAIL: Microphone or Speech Recognition permission not granted.")
                 self.stage = .error(message: "Microphone/Speech Recognition access not granted. Grant both in System Settings > Privacy & Security.")

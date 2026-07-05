@@ -25,8 +25,6 @@ enum TranslationServiceError: Error, CustomStringConvertible {
 @available(macOS 15.0, *)
 @MainActor
 final class TranslationService {
-    private var window: NSWindow?
-
     func translate(text: String, source: String, target: String) async throws -> String {
         let sourceLang = Locale.Language(identifier: source)
         let targetLang = Locale.Language(identifier: target)
@@ -48,13 +46,18 @@ final class TranslationService {
         return try await withThrowingTimeout(seconds: 120) {
             try await withCheckedThrowingContinuation { continuation in
                 var didResume = false
+                // Captured locally (not as a shared instance property) so a call that finishes
+                // late — e.g. after its own 120s timeout already returned an error, while a
+                // subsequent call is in flight — can only ever tear down its own window, never
+                // one belonging to an unrelated, still-active translate() call.
+                var ownWindow: NSWindow?
 
-                let complete: (Result<String, Error>) -> Void = { [weak self] result in
+                let complete: (Result<String, Error>) -> Void = { result in
                     Task { @MainActor in
                         guard !didResume else { return }
                         didResume = true
-                        self?.window?.orderOut(nil)
-                        self?.window = nil
+                        ownWindow?.orderOut(nil)
+                        ownWindow = nil
 
                         switch result {
                         case .success(let value):
@@ -89,7 +92,7 @@ final class TranslationService {
                 window.ignoresMouseEvents = true
                 window.level = .floating
 
-                self.window = window
+                ownWindow = window
                 window.orderFrontRegardless()
             }
         }
